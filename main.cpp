@@ -10,4 +10,5 @@ int main() {
     }
     std::cout << '\n';
     std::cout << "Длина строки " << len << '\n';
+    delete[] str1;
 }
