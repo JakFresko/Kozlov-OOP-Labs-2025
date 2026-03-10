@@ -1,7 +1,11 @@
 #pragma once
 #include <cstring>
-#include <iostream>
 #include <fstream>
+#include <iostream>
+
+namespace {
+    const int kBuffSize = 256;
+}
 
 class FlightTicket {
  private:
@@ -73,118 +77,120 @@ class FlightTicket {
 };
 
 class TicketArr {
-    private:
-        FlightTicket *data;
-        int size;
-        int capacity;
+ private:
+    FlightTicket* data;
+    int size;
+    int capacity;
 
-        void Resize() {
-            int newCap = capacity * 2;
-            FlightTicket* NewData = new FlightTicket[newCap];
-            for(int i{}; i < capacity; i++) {
-                NewData[i] = data[i];
-            }
-            delete[] data;
-            data = NewData;
-            capacity = newCap;
+    void Resize() {
+        int newCap = capacity * 2;
+        FlightTicket* NewData = new FlightTicket[newCap];
+        for (int i{}; i < capacity; i++) {
+            NewData[i] = data[i];
         }
-    public:
-        TicketArr() {
-            size = 0;
-            capacity = 4;
-            data = new FlightTicket[capacity];
-        }
-        ~TicketArr() {
-            delete[] data;
-        }
+        delete[] data;
+        data = NewData;
+        capacity = newCap;
+    }
 
-        int get_size() const {
-            return size;
-        }
+ public:
+    TicketArr() {
+        size = 0;
+        capacity = 4;
+        data = new FlightTicket[capacity];
+    }
+    ~TicketArr() { delete[] data; }
 
-        void add(FlightTicket& ticket) {
-            if(size == capacity) {
-                Resize();
-            }
-            data[size++] = ticket;
-        }
+    int get_size() const { return size; }
 
-        bool remove_by_dep(const char* dep) {
-            for(int i{}; i < size; i++) {
-                if(strcmp(data[i].get_dep(), dep) == 0) {
-                    for(int j = i; j < size - 1; j++) {
-                        data[j] = data[j + 1];
+    void add(FlightTicket& ticket) {
+        if (size == capacity) {
+            Resize();
+        }
+        data[size++] = ticket;
+    }
+
+    bool remove_by_cost(int cost) {
+        for (int i{}; i < size; i++) {
+            if (data[i].get_cost() == cost) {
+                for (int j = i; j < size - 1; j++) {
+                    data[j] = data[j + 1];
                     size--;
                     return true;
-                    }
                 }
             }
+        }
+        return false;
+    }
+
+    void sort_by_cost() {
+        for (int i{}; i < size - 1; i++) {
+            for (int j = i; j < size - i - 1; j++) {
+                if (data[i].get_cost() > data[j + 1].get_cost()) {
+                    FlightTicket tmp = data[j];
+                    data[j] = data[j + 1];
+                    data[j + 1] = tmp;
+                }
+            }
+        }
+    }
+
+    void sort_by_dep() {
+        for (int i = 0; i < size - 1; i++)
+            for (int j = 0; j < size - i - 1; j++)
+                if (strcmp(data[j].get_dep(), data[j + 1].get_dep()) > 0) {
+                    FlightTicket tmp = data[j];
+                    data[j] = data[j + 1];
+                    data[j + 1] = tmp;
+                }
+    }
+
+    int find(const char* arr) const {
+        for (int i = 0; i < size; i++)
+            if (strcmp(data[i].get_arr(), arr) == 0)
+                return i;
+        return -1;
+    }
+
+    void print_all() const {
+        if (size == 0) {
+            std::cout << "Массив пуст.\n";
+            return;
+        }
+        for (int i = 0; i < size; i++) {
+            std::cout << "[" << i << "]\n" << data[i] << '\n';
+        }
+    }
+
+    bool load(const char* filename) {
+        std::ifstream file(filename);
+        if (!file.is_open())
             return false;
+        delete[] data;
+        capacity = 4;
+        size = 0;
+        data = new FlightTicket[capacity];
+        char dep[kBuffSize], arr[kBuffSize];
+        double cost;
+        while (file >> dep >> arr >> cost) {
+            FlightTicket t(dep, arr, cost);
+            add(t);
         }
+        file.close();
+        return true;
+    }
 
-        void sort_by_cost() {
-            for(int i{}; i < size - 1; i++) {
-                for(int j = i; j < size - i - 1; j++) {
-                    if(data[i].get_cost() > data[j+1].get_cost()) {
-                        FlightTicket tmp = data[j];
-                        data[j] = data[j+1];
-                        data[j+1] = tmp;
-                    }
-                }
-            }
-        }
+    // Сохранение в файл
+    bool save(const char* filename) const {
+        std::ofstream file(filename);
+        if (!file.is_open())
+            return false;
+        for (int i = 0; i < size; i++)
+            file << data[i].get_dep() << ' ' << data[i].get_arr() << ' ' << data[i].get_cost() << '\n';
+        file.close();
+        return true;
+    }
 
-        void sort_by_dep() {
-            for(int i = 0; i < size - 1; i++)
-                for(int j = 0; j < size - i - 1; j++)
-                    if(strcmp(data[j].get_dep(), data[j+1].get_dep()) > 0) {
-                        FlightTicket tmp = data[j];
-                        data[j] = data[j+1];
-                        data[j+1] = tmp;
-                    }
-        }
-
-        int find(const char* arr) const {
-            for(int i = 0; i < size; i++)
-                if(strcmp(data[i].get_arr(), arr) == 0) return i;
-            return -1;
-        }
-
-        void print_all() const {
-            if(size == 0) { std::cout << "Массив пуст.\n"; return; }
-            for(int i = 0; i < size; i++) {
-                std::cout << "[" << i << "]\n" << data[i] << '\n';
-            }
-        }
-
-        bool load(const char* filename) {
-            std::ifstream file(filename);
-            if(!file.is_open()) return false;
-            delete[] data;
-            capacity = 4; size = 0;
-            data = new FlightTicket[capacity];
-            char dep[256], arr[256];
-            double cost;
-            while(file >> dep >> arr >> cost) {
-                FlightTicket t(dep, arr, cost);
-                add(t);
-            }
-            file.close();
-            return true;
-        }
-
-        // Сохранение в файл
-        bool save(const char* filename) const {
-            std::ofstream file(filename);
-            if(!file.is_open()) return false;
-            for(int i = 0; i < size; i++)
-                file << data[i].get_dep() << ' '
-                     << data[i].get_arr() << ' '
-                     << data[i].get_cost() << '\n';
-            file.close();
-            return true;
-        }
-
-        FlightTicket& operator[](int i) { return data[i]; }
-        const FlightTicket& operator[](int i) const { return data[i]; }
+    FlightTicket& operator[](int i) { return data[i]; }
+    const FlightTicket& operator[](int i) const { return data[i]; }
 };
