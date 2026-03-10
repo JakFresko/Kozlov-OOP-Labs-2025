@@ -1,79 +1,104 @@
 #include "StartingApp.hpp"
 
-enum menu {
-    kCreateObj = 1,
-    kPrintObj = 2,
-    kDeleteObj = 3,
-    kPrintArr = 4,
-    kExit = 5
-};
-
-namespace {
-const int kArrLen = 100;
-}
-
-int FlightTicket::quantity = 0;
-
 void StartingApp() {
-    FlightTicket arr[kArrLen]{};
+    TicketArr arr;
     int item{};
-    int counter{};
-    while (true) {
-        std::cout << "1) Создание объекта\n2) Вывод объекта на экран\n3) Удаление объекта\n4) Вывод всех объектов\n5) Выход\nВыберите пункт меню: ";
+
+    while(true) {
+        std::cout << "1) Загрузка из файла\n"
+                  << "2) Сохранение в файл\n"
+                  << "3) Добавление объекта\n"
+                  << "4) Удаление объекта\n"
+                  << "5) Сортировка массива\n"
+                  << "6) Поиск объекта\n"
+                  << "7) Редактирование объекта\n"
+                  << "8) Вывод массива на экран\n"
+                  << "9) Выход\n"
+                  << "Выберите пункт меню: ";
         std::cin >> item;
         std::cout << '\n';
-        switch (item) {
-            case kCreateObj: {
-                if (counter > kArrLen - 1) {
-                    std::cout << "Массив объектов переполнен\n";
-                    break;
-                }
-                std::cin >> arr[counter];  // читаем сразу в элемент массива, без лишних копий
-                counter++;
-                break;
-            }
-            case kPrintObj: {
-                int index{};
-                std::cout << "Введите индекс элемента который хотите вывести: ";
-                std::cin >> index;
-                std::cout << '\n';
-                if (index < 0 || index >= counter) {
-                    std::cout << "Элемента с таким индексом не существует\n";
-                    break;
-                }
-                std::cout << arr[index];
-                break;
-            }
-            case kDeleteObj: {
-                int index{};
-                std::cout << "Введите индекс элемента который хотите удалить: ";
-                std::cin >> index;
-                std::cout << '\n';
-                if (index < 0 || index >= counter) {
-                    std::cout << "Элемента с таким индексом не существует\n";
-                    break;
-                }
-                for (int i = index; i < counter - 1; i++) {
-                    arr[i] = arr[i + 1];
-                }
-                counter--;
-                break;
-            }
-            case kPrintArr:
-                if (counter == 0) {
-                    std::cout << "Нет объектов для вывода\n";
-                    break;
-                }
-                for (int i = 0; i < counter; i++) {
-                    std::cout << arr[i] << '\n';
-                }
-                break;
-            case kExit:
-                return;
-                break;
-            default:
-                std::cout << "Некорректный ввод, попробуйте еще раз\n";
-                break;
+
+        switch(item) {
+        case 1: {
+            char filename[256];
+            std::cout << "Имя файла: ";
+            std::cin >> filename;
+            if(arr.load(filename))
+                std::cout << "Загружено " << arr.get_size() << " объектов.\n";
+            else
+                std::cout << "Не удалось открыть файл.\n";
+            break;
         }
+        case 2: {
+            char filename[256];
+            std::cout << "Имя файла: ";
+            std::cin >> filename;
+            if(arr.save(filename))
+                std::cout << "Сохранено.\n";
+            else
+                std::cout << "Не удалось сохранить файл.\n";
+            break;
+        }
+        case 3: {
+            FlightTicket t;
+            std::cin >> t;
+            arr.add(t);
+            std::cout << "Объект добавлен.\n";
+            break;
+        }
+        case 4: {
+            char dep[256];
+            std::cout << "Введите аэропорт вылета для удаления: ";
+            std::cin >> dep;
+            if(arr.remove_by_dep(dep))
+                std::cout << "Объект удалён.\n";
+            else
+                std::cout << "Объект не найден.\n";
+            break;
+        }
+        case 5: {
+            int sortItem{};
+            std::cout << "1) По стоимости\n2) По аэропорту вылета\nВыбор: ";
+            std::cin >> sortItem;
+            if(sortItem == 1) arr.sort_by_cost();
+            else              arr.sort_by_dep();
+            std::cout << "Отсортировано.\n";
+            break;
+        }
+        case 6: {
+            char arr_name[256];
+            std::cout << "Введите аэропорт назначения: ";
+            std::cin >> arr_name;
+            int idx = arr.find(arr_name);
+            if(idx != -1)
+                std::cout << "Найден [" << idx << "]:\n" << arr[idx] << '\n';
+            else
+                std::cout << "Не найдено.\n";
+            break;
+        }
+        case 7: {
+            int index{};
+            std::cout << "Введите индекс объекта для редактирования: ";
+            std::cin >> index;
+            if(index < 0 || index >= arr.get_size()) {
+                std::cout << "Неверный индекс.\n";
+                break;
+            }
+            std::cout << "Текущие данные:\n" << arr[index] << '\n';
+            std::cout << "Введите новые данные:\n";
+            std::cin >> arr[index];
+            std::cout << "Объект обновлён.\n";
+            break;
+        }
+        case 8:
+            arr.print_all();
+            break;
+        case 9:
+            return;
+        default:
+            std::cout << "Некорректный ввод.\n";
+            break;
+        }
+        std::cout << '\n';
     }
 }

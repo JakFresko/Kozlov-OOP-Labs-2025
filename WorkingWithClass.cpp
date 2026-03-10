@@ -5,6 +5,8 @@ namespace {
 const int kBuffSize = 256;
 }
 
+int FlightTicket::quantity = 0;
+
 std::ostream& operator<<(std::ostream& out, const FlightTicket& obj) {
     out << "Аэропорт вылета: " << obj.departure << '\n' << "Аэропорт прибытия: " << obj.arrival << '\n' << "Стоимость билета: " << obj.cost << '\n';
     return out;
