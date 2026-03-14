@@ -13,10 +13,6 @@ enum menu {
     kExit = 10
 };
 
-namespace {
-const int kBuffSize = 256;
-}
-
 void StartingApp() {
     TicketArr arr;
     int item{};
