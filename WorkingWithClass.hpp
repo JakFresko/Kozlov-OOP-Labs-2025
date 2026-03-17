@@ -19,8 +19,7 @@ class FlightTicket {
     FlightTicket(const char* dep, const char* arr, double cst);
     FlightTicket(const FlightTicket& ticket);
     ~FlightTicket();
-    FlightTicket& operator=(const FlightTicket& other);
-
+    FlightTicket& operator=(FlightTicket);
     const char* get_dep() const;
     const char* get_arr() const;
     double get_cost() const;
@@ -29,6 +28,8 @@ class FlightTicket {
     void set_dep(const char* dep);
     void set_arr(const char* arr);
     void set_cost(double cst);
+
+    friend void swap(FlightTicket& a, FlightTicket& b);
 
     friend std::ostream& operator<<(std::ostream& out, const FlightTicket& obj);
     friend std::istream& operator>>(std::istream& in, FlightTicket& obj);

@@ -38,19 +38,10 @@ FlightTicket::~FlightTicket() {
     std::cout << "Количество объектов: " << quantity << '\n';
 }
 
-FlightTicket& FlightTicket::operator=(const FlightTicket& other) {
-    if (this != &other) {
-        delete[] departure;
-        delete[] arrival;
-        departure = new char[strlen(other.departure) + 1];
-        strncpy(departure, other.departure, strlen(other.departure) + 1);
-        arrival = new char[strlen(other.arrival) + 1];
-        strncpy(arrival, other.arrival, strlen(other.arrival) + 1);
-        cost = other.cost;
-    }
+FlightTicket& FlightTicket::operator=(FlightTicket other) {
+    swap(*this, other);
     return *this;
 }
-
 const char* FlightTicket::get_dep() const {
     return departure;
 }
@@ -100,6 +91,20 @@ std::istream& operator>>(std::istream& in, FlightTicket& obj) {
     in >> obj.cost;
 
     return in;
+}
+
+void swap(FlightTicket& a, FlightTicket& b) {
+    char* tmpDep = a.departure;
+    char* tmpArr = a.arrival;
+    double tmpCost = a.cost;
+
+    a.departure = b.departure;
+    a.arrival   = b.arrival;
+    a.cost      = b.cost;
+
+    b.departure = tmpDep;
+    b.arrival   = tmpArr;
+    b.cost      = tmpCost;
 }
 
 void TicketArr::Resize() {
