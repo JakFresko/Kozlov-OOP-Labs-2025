@@ -29,19 +29,19 @@ class FlightTicket {
     void set_arr(const char* arr);
     void set_cost(double cst);
 
-    friend void swap(FlightTicket& a, FlightTicket& b);
+    friend void swap(FlightTicket& a, FlightTicket& b) noexcept;
 
     friend std::ostream& operator<<(std::ostream& out, const FlightTicket& obj);
     friend std::istream& operator>>(std::istream& in, FlightTicket& obj);
 };
 
 class TicketArr {
- private:
-    FlightTicket* data;
-    int size;
-    int capacity;
+    private:
+        int size;
+        int capacity;
+        FlightTicket* data = nullptr;
 
-    void Resize();
+         void Resize();
 
  public:
     TicketArr();
@@ -61,8 +61,6 @@ class TicketArr {
 
     void print_all() const;
     bool load(const char* filename);
-
-    // Сохранение в файл
     bool save(const char* filename) const;
 
     FlightTicket& operator[](int i) { return data[i]; }

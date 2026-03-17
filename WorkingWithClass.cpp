@@ -3,30 +3,30 @@
 
 int FlightTicket::quantity = 0;
 
-FlightTicket::FlightTicket() {
-    departure = new char[1]{'\0'};
-    arrival = new char[1]{'\0'};
-    cost = 0;
+FlightTicket::FlightTicket()
+    : departure(new char[1]{'\0'})
+    , arrival(new char[1]{'\0'})
+    , cost(0) {
     quantity++;
     std::cout << "Количество объектов: " << quantity << '\n';
 }
 
-FlightTicket::FlightTicket(const char* dep, const char* arr, double cst) {
-    departure = new char[strlen(dep) + 1];
+FlightTicket::FlightTicket(const char* dep, const char* arr, double cst)
+    : departure(new char[strlen(dep) + 1])
+    , arrival(new char[strlen(arr) + 1])
+    , cost(cst) {
     strncpy(departure, dep, strlen(dep) + 1);
-    arrival = new char[strlen(arr) + 1];
     strncpy(arrival, arr, strlen(arr) + 1);
-    cost = cst;
     quantity++;
     std::cout << "Количество объектов: " << quantity << '\n';
 }
 
-FlightTicket::FlightTicket(const FlightTicket& ticket) {
-    departure = new char[strlen(ticket.departure) + 1];
+FlightTicket::FlightTicket(const FlightTicket& ticket)
+    : departure(new char[strlen(ticket.departure) + 1])
+    , arrival(new char[strlen(ticket.arrival) + 1])
+    , cost(ticket.cost) {
     strncpy(departure, ticket.departure, strlen(ticket.departure) + 1);
-    arrival = new char[strlen(ticket.arrival) + 1];
     strncpy(arrival, ticket.arrival, strlen(ticket.arrival) + 1);
-    cost = ticket.cost;
     quantity++;
     std::cout << "Количество объектов: " << quantity << '\n';
 }
@@ -79,11 +79,13 @@ std::istream& operator>>(std::istream& in, FlightTicket& obj) {
 
     std::cout << "Аэропорт вылета: ";
     in >> buf;
+    delete[] obj.departure;
     obj.departure = new char[strlen(buf) + 1];
     strncpy((char*)obj.departure, buf, strlen(buf) + 1);
 
     std::cout << "Аэропорт прибытия: ";
     in >> buf;
+    delete[] obj.arrival;
     obj.arrival = new char[strlen(buf) + 1];
     strncpy((char*)obj.arrival, buf, strlen(buf) + 1);
 
@@ -93,7 +95,7 @@ std::istream& operator>>(std::istream& in, FlightTicket& obj) {
     return in;
 }
 
-void swap(FlightTicket& a, FlightTicket& b) {
+void swap(FlightTicket& a, FlightTicket& b) noexcept{
     char* tmpDep = a.departure;
     char* tmpArr = a.arrival;
     double tmpCost = a.cost;
@@ -118,11 +120,11 @@ void TicketArr::Resize() {
     capacity = newCap;
 }
 
-TicketArr::TicketArr() {
-    size = 0;
-    capacity = 4;
-    data = new FlightTicket[capacity];
-}
+TicketArr::TicketArr()
+    : size(0)
+    , capacity(4)
+    , data(new FlightTicket[capacity]) {}
+
 TicketArr::~TicketArr() {
     delete[] data;
 }
@@ -152,9 +154,21 @@ bool TicketArr::remove_by_cost(int cost) {
 }
 
 void TicketArr::sort_by_cost() {
-    for (int i{}; i < size - 1; i++) {
-        for (int j = i; j < size - i - 1; j++) {
-            if (data[i].get_cost() > data[j + 1].get_cost()) {
+    for(int i = 0; i < size - 1; i++) {
+        for(int j = 0; j < size - i - 1; j++) {
+            if(data[j].get_cost() > data[j+1].get_cost()) {
+                FlightTicket tmp = data[j];
+                data[j] = data[j+1];
+                data[j+1] = tmp;
+            }
+        }
+    }
+}
+
+void TicketArr::sort_by_dep() {
+    for (int i = 0; i < size - 1; i++) {
+        for (int j = 0; j < size - i - 1; j++) {
+            if (strcmp(data[j].get_dep(), data[j + 1].get_dep()) > 0) {
                 FlightTicket tmp = data[j];
                 data[j] = data[j + 1];
                 data[j + 1] = tmp;
@@ -163,20 +177,12 @@ void TicketArr::sort_by_cost() {
     }
 }
 
-void TicketArr::sort_by_dep() {
-    for (int i = 0; i < size - 1; i++)
-        for (int j = 0; j < size - i - 1; j++)
-            if (strcmp(data[j].get_dep(), data[j + 1].get_dep()) > 0) {
-                FlightTicket tmp = data[j];
-                data[j] = data[j + 1];
-                data[j + 1] = tmp;
-            }
-}
-
 int TicketArr::find(const char* arr) const {
-    for (int i = 0; i < size; i++)
-        if (strcmp(data[i].get_arr(), arr) == 0)
+    for (int i = 0; i < size; i++) {
+        if (strcmp(data[i].get_arr(), arr) == 0) {
             return i;
+        }
+    }
     return -1;
 }
 
@@ -192,14 +198,16 @@ void TicketArr::print_all() const {
 
 bool TicketArr::load(const char* filename) {
     std::ifstream file(filename);
-    if (!file.is_open())
+    if (!file.is_open()) {
         return false;
+    }
     delete[] data;
     capacity = 4;
     size = 0;
     data = new FlightTicket[capacity];
-    char dep[kBuffSize], arr[kBuffSize];
-    double cost;
+    char dep[kBuffSize];
+    char arr[kBuffSize];
+    double cost{};
     while (file >> dep >> arr >> cost) {
         FlightTicket t(dep, arr, cost);
         add(t);
@@ -208,13 +216,14 @@ bool TicketArr::load(const char* filename) {
     return true;
 }
 
-// Сохранение в файл
 bool TicketArr::save(const char* filename) const {
     std::ofstream file(filename);
-    if (!file.is_open())
+    if (!file.is_open()) {
         return false;
-    for (int i = 0; i < size; i++)
+    }
+    for (int i = 0; i < size; i++) {
         file << data[i].get_dep() << ' ' << data[i].get_arr() << ' ' << data[i].get_cost() << '\n';
+    }
     file.close();
     return true;
 }
