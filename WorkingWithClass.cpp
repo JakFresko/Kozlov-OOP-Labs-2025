@@ -3,18 +3,13 @@
 
 int FlightTicket::quantity = 0;
 
-FlightTicket::FlightTicket()
-    : departure(new char[1]{'\0'})
-    , arrival(new char[1]{'\0'})
-    , cost(0) {
+FlightTicket::FlightTicket() : departure(new char[1]{'\0'}), arrival(new char[1]{'\0'}), cost(0) {
     quantity++;
     std::cout << "Количество объектов: " << quantity << '\n';
 }
 
 FlightTicket::FlightTicket(const char* dep, const char* arr, double cst)
-    : departure(new char[strlen(dep) + 1])
-    , arrival(new char[strlen(arr) + 1])
-    , cost(cst) {
+    : departure(new char[strlen(dep) + 1]), arrival(new char[strlen(arr) + 1]), cost(cst) {
     strncpy(departure, dep, strlen(dep) + 1);
     strncpy(arrival, arr, strlen(arr) + 1);
     quantity++;
@@ -22,9 +17,7 @@ FlightTicket::FlightTicket(const char* dep, const char* arr, double cst)
 }
 
 FlightTicket::FlightTicket(const FlightTicket& ticket)
-    : departure(new char[strlen(ticket.departure) + 1])
-    , arrival(new char[strlen(ticket.arrival) + 1])
-    , cost(ticket.cost) {
+    : departure(new char[strlen(ticket.departure) + 1]), arrival(new char[strlen(ticket.arrival) + 1]), cost(ticket.cost) {
     strncpy(departure, ticket.departure, strlen(ticket.departure) + 1);
     strncpy(arrival, ticket.arrival, strlen(ticket.arrival) + 1);
     quantity++;
@@ -95,18 +88,18 @@ std::istream& operator>>(std::istream& in, FlightTicket& obj) {
     return in;
 }
 
-void swap(FlightTicket& a, FlightTicket& b) noexcept{
+void swap(FlightTicket& a, FlightTicket& b) noexcept {
     char* tmpDep = a.departure;
     char* tmpArr = a.arrival;
     double tmpCost = a.cost;
 
     a.departure = b.departure;
-    a.arrival   = b.arrival;
-    a.cost      = b.cost;
+    a.arrival = b.arrival;
+    a.cost = b.cost;
 
     b.departure = tmpDep;
-    b.arrival   = tmpArr;
-    b.cost      = tmpCost;
+    b.arrival = tmpArr;
+    b.cost = tmpCost;
 }
 
 void TicketArr::Resize() {
@@ -120,10 +113,8 @@ void TicketArr::Resize() {
     capacity = newCap;
 }
 
-TicketArr::TicketArr()
-    : size(0)
-    , capacity(4)
-    , data(new FlightTicket[capacity]) {}
+TicketArr::TicketArr() : size(0), capacity(4), data(new FlightTicket[capacity]) {
+}
 
 TicketArr::~TicketArr() {
     delete[] data;
@@ -154,12 +145,12 @@ bool TicketArr::remove_by_cost(int cost) {
 }
 
 void TicketArr::sort_by_cost() {
-    for(int i = 0; i < size - 1; i++) {
-        for(int j = 0; j < size - i - 1; j++) {
-            if(data[j].get_cost() > data[j+1].get_cost()) {
+    for (int i = 0; i < size - 1; i++) {
+        for (int j = 0; j < size - i - 1; j++) {
+            if (data[j].get_cost() > data[j + 1].get_cost()) {
                 FlightTicket tmp = data[j];
-                data[j] = data[j+1];
-                data[j+1] = tmp;
+                data[j] = data[j + 1];
+                data[j + 1] = tmp;
             }
         }
     }

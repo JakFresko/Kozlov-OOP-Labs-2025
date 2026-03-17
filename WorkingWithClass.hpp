@@ -4,7 +4,7 @@
 #include <iostream>
 
 namespace {
-    const int kBuffSize = 256;
+const int kBuffSize = 256;
 }
 
 class FlightTicket {
@@ -36,12 +36,12 @@ class FlightTicket {
 };
 
 class TicketArr {
-    private:
-        int size;
-        int capacity;
-        FlightTicket* data = nullptr;
+ private:
+    int size;
+    int capacity;
+    FlightTicket* data = nullptr;
 
-         void Resize();
+    void Resize();
 
  public:
     TicketArr();
