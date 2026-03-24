@@ -79,7 +79,7 @@
 # *.ipr
 
 # CMake
-cmake-build-*/
+#cmake-build-*/
 
 # Mongo Explorer plugin
 .idea/**/mongoSettings.xml
@@ -212,3 +212,5 @@ _deps
 # End of https://www.toptal.com/developers/gitignore/api/c++,visualstudiocode,clion+all,cmake,jetbrains+all
 
 # Additional
+/part1
+/part2
