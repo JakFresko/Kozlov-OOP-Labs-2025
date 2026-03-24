@@ -17,14 +17,3 @@ int gcd(int a, int b) {
         while (b) { int t = b; b = a % b; a = t; }
         return a;
     }
-
-void normalize(int& integer, int& numerator, int& denominator) {
-    int totalNum = integer * denominator + (integer < 0 ? -numerator : numerator);
-
-    int g = gcd(abs(totalNum), denominator);
-    totalNum    /= g;
-    denominator /= g;
-
-    integer     = totalNum / denominator;
-    numerator   = abs(totalNum % denominator);
-}
