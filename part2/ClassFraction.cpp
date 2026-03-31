@@ -113,18 +113,6 @@ std::ostream& operator<<(std::ostream& out, const Fraction& obj) {
     return out;
 }
 
-int Fraction::get_integer() const {
-    return numerator / denominator;
-}
-
-int Fraction::get_numerator() const {
-    return abs(numerator % denominator);
-}
-
-int Fraction::get_denominator() const {
-    return denominator;
-}
-
 Fraction::Fraction(int a) {
     numerator = a;
     denominator = 1;

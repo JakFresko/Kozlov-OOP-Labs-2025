@@ -50,7 +50,6 @@ bool Fraction::parse(const char* str) {
     int whole = 0, num = 0, den = 1;
 
     if (*str == '/') {
-        // Формат: [sign] числитель/знаменатель
         str++;
         if (*str < '0' || *str > '9') return false;
         den = 0;
@@ -59,7 +58,6 @@ bool Fraction::parse(const char* str) {
         if (den == 0) return false;
         num = firstNum;
     } else if (*str >= '0' && *str <= '9') {
-        // Формат: [sign] целое числитель/знаменатель
         whole = firstNum;
         num = 0;
         while (*str >= '0' && *str <= '9')
@@ -73,21 +71,17 @@ bool Fraction::parse(const char* str) {
             den = den * 10 + (*str++ - '0');
         if (den == 0) return false;
     } else {
-        // Формат: [sign] целое
         while (*str == ' ') str++;
         if (*str != '\0') return false;
-
         numerator   = sign * firstNum;
         denominator = 1;
         return true;
     }
 
-    // Переводим в неправильную дробь и сокращаем
     int totalNum = (whole * den + num) * sign;
     int g = gcd(abs(totalNum), den);
     numerator   = totalNum / g;
     denominator = den / g;
-
     return true;
 }
 
@@ -102,32 +96,18 @@ std::istream& operator>>(std::istream& in, Fraction& obj) {
 }
 
 std::ostream& operator<<(std::ostream& out, const Fraction& obj) {
-    int integer = obj.numerator / obj.denominator;
+    int integer   = obj.numerator / obj.denominator;
     int remainder = abs(obj.numerator % obj.denominator);
-
-    if (remainder == 0) {
+    if (remainder == 0)
         out << integer << '\n';
-    } else {
+    else
         out << integer << ' ' << remainder << '/' << obj.denominator << '\n';
-    }
     return out;
 }
 
-int Fraction::get_integer() const {
-    return numerator / denominator;
-}
-
-int Fraction::get_numerator() const {
-    return abs(numerator % denominator);
-}
-
-int Fraction::get_denominator() const {
-    return denominator;
-}
-
-Fraction operator+(const Fraction& a, const Fraction& b) {
-    int commonDen = a.denominator / gcd(a.denominator, b.denominator) * b.denominator;
-    int totalNum  = a.numerator * (commonDen / a.denominator)
+Fraction Fraction::operator+(const Fraction& b) const {
+    int commonDen = denominator / gcd(denominator, b.denominator) * b.denominator;
+    int totalNum  = numerator * (commonDen / denominator)
                   + b.numerator * (commonDen / b.denominator);
 
     int g = gcd(abs(totalNum), commonDen);
@@ -138,14 +118,32 @@ Fraction operator+(const Fraction& a, const Fraction& b) {
     return result;
 }
 
-Fraction operator+(const Fraction& a, int b) {
+Fraction Fraction::operator+(int b) const {
     Fraction temp;
     temp.numerator   = b;
     temp.denominator = 1;
-    return a + temp;
+    return *this + temp;
 }
 
 Fraction operator+(int a, const Fraction& b) {
+    return b + a;
+}
+
+Fraction Fraction::operator+(double b) const {
+    int scale = 1;
+    for (int i = 0; i < kNumberDecimalPlaces; i++)
+        scale *= 10;
+
+    int totalNum = static_cast<int>(round(b * scale));
+    int g = gcd(abs(totalNum), scale);
+
+    Fraction temp;
+    temp.numerator   = totalNum / g;
+    temp.denominator = scale / g;
+    return *this + temp;
+}
+
+Fraction operator+(double a, const Fraction& b) {
     return b + a;
 }
 
@@ -157,22 +155,4 @@ Fraction& Fraction::operator+=(const Fraction& other) {
 Fraction& Fraction::operator+=(int other) {
     *this = *this + other;
     return *this;
-}
-
-Fraction operator+(const Fraction& a, double b) {
-    int scale = 1;
-    for (int i = 0; i < kNumberDecimalPlaces; i++)
-        scale *= 10;
-
-    int totalNum = static_cast<int>(round(b * scale));
-    int g = gcd(abs(totalNum), scale);
-
-    Fraction temp;
-    temp.numerator   = totalNum / g;
-    temp.denominator = scale / g;
-    return a + temp;
-}
-
-Fraction operator+(double a, const Fraction& b) {
-    return b + a;
 }

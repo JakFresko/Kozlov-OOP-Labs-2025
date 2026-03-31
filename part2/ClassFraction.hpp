@@ -4,8 +4,8 @@
 
 class Fraction {
     private:
-        int numerator;    // может быть отрицательным — хранит знак
-        int denominator;  // всегда > 0
+        int numerator;
+        int denominator;
 
         bool parse(const char*);
 
@@ -18,10 +18,6 @@ class Fraction {
 
         friend std::ostream& operator<<(std::ostream&, const Fraction&);
         friend std::istream& operator>>(std::istream&, Fraction&);
-
-        int get_integer() const;
-        int get_numerator() const;
-        int get_denominator() const;
 
         Fraction(int);
         Fraction(double);
