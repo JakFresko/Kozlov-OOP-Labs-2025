@@ -16,8 +16,6 @@ Term Term::operator+(const Term& other) const {
     return Term(coef + other.coef, power);
 }
 
-// Разбирает строку вида: [sign] [coef] [x [^ power]]
-// Примеры: "3x^2", "-x^3", "5", "-7", "x", "-3x"
 std::istream& operator>>(std::istream& is, Term& t) {
     std::string s;
     is >> s;
@@ -27,12 +25,10 @@ std::istream& operator>>(std::istream& is, Term& t) {
     int    power = 0;
     size_t i = 0;
 
-    // знак
     int sign = 1;
     if (s[i] == '-') { sign = -1; ++i; }
     else if (s[i] == '+') { ++i; }
 
-    // числовой коэффициент (может отсутствовать перед x)
     bool has_coef = false;
     std::string num;
     while (i < s.size() && (std::isdigit(s[i]) || s[i] == '.')) {
@@ -42,11 +38,9 @@ std::istream& operator>>(std::istream& is, Term& t) {
     coef = has_coef ? std::stod(num) : 1.0;
     coef *= sign;
 
-    // переменная x
     if (i < s.size() && s[i] == 'x') {
         ++i;
         power = 1;
-        // степень
         if (i < s.size() && s[i] == '^') {
             ++i;
             std::string pw;
@@ -68,11 +62,9 @@ std::ostream& operator<<(std::ostream& os, const Term& t) {
         return os;
     }
 
-    // коэффициент
     if (t.coef == -1.0)      os << '-';
     else if (t.coef != 1.0)  os << t.coef;
 
-    // переменная
     if (t.power == 1) os << 'x';
     else              os << "x^" << t.power;
 

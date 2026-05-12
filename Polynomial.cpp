@@ -5,10 +5,6 @@
 #include <string>
 #include <cctype>
 
-// ============================================================
-//  Внутренние вспомогательные методы
-// ============================================================
-
 void Polynomial::resize(int new_cap) {
     if (new_cap < 1) new_cap = 1;
     Term* tmp = new Term[new_cap];
@@ -18,13 +14,13 @@ void Polynomial::resize(int new_cap) {
     capacity = new_cap;
 }
 
-// Объединить одинаковые степени, удалить нулевые
+
 void Polynomial::simplify() {
     for (int i = 0; i < size; ++i) {
         for (int j = i + 1; j < size; ) {
             if (terms[i].power == terms[j].power) {
                 terms[i].coef += terms[j].coef;
-                // удаляем j-й элемент
+
                 for (int k = j; k < size - 1; ++k)
                     terms[k] = terms[k + 1];
                 --size;
@@ -33,7 +29,7 @@ void Polynomial::simplify() {
             }
         }
     }
-    // убираем нулевые коэффициенты (кроме случая пустого полинома)
+
     for (int i = 0; i < size; ) {
         if (terms[i].coef == 0.0 && size > 1) {
             for (int k = i; k < size - 1; ++k) terms[k] = terms[k + 1];
@@ -44,16 +40,15 @@ void Polynomial::simplify() {
     }
 }
 
-// Сортировка вставками по степени
 void Polynomial::sort() {
     for (int i = 1; i < size; ++i) {
         Term key = terms[i];
         int  j   = i - 1;
-        if (order) {  // возрастание
+        if (order) {
             while (j >= 0 && terms[j].power > key.power) {
                 terms[j + 1] = terms[j]; --j;
             }
-        } else {       // убывание
+        } else {
             while (j >= 0 && terms[j].power < key.power) {
                 terms[j + 1] = terms[j]; --j;
             }
@@ -63,7 +58,6 @@ void Polynomial::sort() {
 }
 
 void Polynomial::add_term(const Term& t) {
-    // ищем существующий член той же степени
     for (int i = 0; i < size; ++i) {
         if (terms[i].power == t.power) {
             terms[i].coef += t.coef;
@@ -72,15 +66,10 @@ void Polynomial::add_term(const Term& t) {
             return;
         }
     }
-    // новая степень — добавляем
     if (size >= capacity) resize(capacity * 2);
     terms[size++] = t;
     sort();
 }
-
-// ============================================================
-//  Конструкторы / деструктор
-// ============================================================
 
 Polynomial::Polynomial()
     : terms(new Term[4]), size(1), capacity(4), order(false)
@@ -111,10 +100,6 @@ Polynomial::Polynomial(const Polynomial& other)
 
 Polynomial::~Polynomial() { delete[] terms; }
 
-// ============================================================
-//  Присваивание
-// ============================================================
-
 Polynomial& Polynomial::operator=(const Polynomial& other) {
     if (this == &other) return *this;
     delete[] terms;
@@ -125,10 +110,6 @@ Polynomial& Polynomial::operator=(const Polynomial& other) {
     for (int i = 0; i < size; ++i) terms[i] = other.terms[i];
     return *this;
 }
-
-// ============================================================
-//  Изменение
-// ============================================================
 
 void Polynomial::add(const Term& t)    { add_term(t); }
 
@@ -146,20 +127,12 @@ void Polynomial::remove(int power) {
 
 void Polynomial::set_order(bool asc) { order = asc; sort(); }
 
-// ============================================================
-//  Вычисление
-// ============================================================
-
 double Polynomial::eval(double x) const {
     double result = 0.0;
     for (int i = 0; i < size; ++i)
         result += terms[i].coef * std::pow(x, terms[i].power);
     return result;
 }
-
-// ============================================================
-//  Арифметика
-// ============================================================
 
 Polynomial& Polynomial::operator+=(const Term& t) {
     add_term(t); return *this;
@@ -199,13 +172,8 @@ Polynomial operator+(Polynomial lhs, const Polynomial& rhs) { lhs += rhs; return
 Polynomial operator-(Polynomial lhs, const Polynomial& rhs) { lhs -= rhs; return lhs; }
 Polynomial operator*(Polynomial lhs, const Polynomial& rhs) { lhs *= rhs; return lhs; }
 
-// ============================================================
-//  Сравнение
-// ============================================================
-
 bool Polynomial::operator==(const Polynomial& other) const {
     if (size != other.size) return false;
-    // сравниваем после сортировки — оба должны быть в одном порядке
     for (int i = 0; i < size; ++i)
         if (terms[i].power != other.terms[i].power ||
             terms[i].coef  != other.terms[i].coef)
@@ -213,29 +181,13 @@ bool Polynomial::operator==(const Polynomial& other) const {
     return true;
 }
 
-// ============================================================
-//  Ввод / вывод
-// ============================================================
-
-// Стратегия разбора строки:
-//  1. Вся строка читается целиком.
-//  2. Разбиваем её на токены — подстроки термов.
-//     Граница между термами — знак + или - НЕ внутри числа.
-//  3. Каждый токен передаётся в Term::operator>>.
-
 std::istream& operator>>(std::istream& is, Polynomial& p) {
     std::string line;
     std::getline(is, line);
-
-    // Удаляем пробелы вокруг ^ и x для упрощения разбора
     std::string clean;
     for (size_t i = 0; i < line.size(); ++i) {
         if (line[i] != ' ') clean += line[i];
     }
-    // clean теперь без пробелов: "3x^2-x^2-3x^2+x^2+5x^5-4x^3+x^2-7"
-
-    // Разбиваем на термы по + и -
-    // Знак идёт вместе со следующим термом
     Polynomial tmp;
     tmp.terms[0] = Term(0, 0);
     tmp.size = 1;
@@ -272,7 +224,6 @@ std::ostream& operator<<(std::ostream& os, const Polynomial& p) {
         } else {
             if (t.get_coef() > 0) os << " + " << t;
             else {
-                // вывод уже включает минус
                 os << " - ";
                 Term pos(-(t.get_coef()), t.get_power());
                 os << pos;
