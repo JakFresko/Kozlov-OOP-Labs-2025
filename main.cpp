@@ -64,10 +64,24 @@ int main() {
 
     std::cout << "\nВведите полином (Enter): ";
     Polynomial pin;
-    std::cin.ignore();
     std::cin >> pin;
     std::cout << "Полином: " << pin << "\n";
     std::cout << "Значение при x=1: " << pin.eval(1) << "\n";
+
+    Term a;
+    std::cin >> a;
+    Term b;
+    std::cin >> b;
+    Polynomial c;
+    c.add(a);
+    c.add(b);
+    std::cout << c << '\n';
+    c = c + pin;
+    std::cout << c << '\n';
+    c *= pin;
+    std::cout << c << '\n';
+    c.remove(7);
+    std::cout << c << '\n';
 
     return 0;
 }
