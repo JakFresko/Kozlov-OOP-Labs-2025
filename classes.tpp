@@ -3,6 +3,63 @@
 
 #ifndef CLASSES_HPP_INCLUDED
     #include "classes.hpp"
+
+template <>
+inline void set<char*>::sort_data() {
+    for (size_t i = 1; i < Base::size; ++i) {
+        char* key = Base::pdata[i];
+        int j = static_cast<int>(i) - 1;
+        while (j >= 0 && std::strcmp(key, Base::pdata[j]) < 0) {
+            Base::pdata[j + 1] = Base::pdata[j];
+            --j;
+        }
+        Base::pdata[j + 1] = key;
+    }
+}
+
+template <>
+inline int set<char*>::qfind(char* const& el) const {
+    if (Base::size == 0) return -1;
+    int lo = 0, hi = static_cast<int>(Base::size) - 1;
+    while (lo <= hi) {
+        int mid = lo + (hi - lo) / 2;
+        int cmp = std::strcmp(Base::pdata[mid], el);
+        if (cmp == 0)      return mid;
+        else if (cmp < 0)  lo = mid + 1;
+        else               hi = mid - 1;
+    }
+    return -1;
+}
+
+template <>
+inline bool set<char*>::is_element(char* const& el) const {
+    return qfind(el) != -1;
+}
+
+template <>
+inline void set<char*>::push(char* const& el) {
+    if (!is_element(el)) {
+        Base::push(el);
+        sort_data();
+    }
+}
+
+template <>
+inline void set<char*>::pop(char* const& el) {
+    int idx = qfind(el);
+    if (idx == -1) return;
+    Base::pop(static_cast<size_t>(idx));
+}
+
+template <>
+inline bool set<char*>::operator==(const set<char*>& other) const {
+    if (Base::size != other.size) return false;
+    for (size_t i = 0; i < Base::size; ++i)
+        if (std::strcmp(Base::pdata[i], other.pdata[i]) != 0)
+            return false;
+    return true;
+}
+
 #endif
 
 #include <cstring>
@@ -261,4 +318,61 @@ inline bool set<const char*>::operator==(const set<const char*>& other) const {
             return false;
     return true;
 }
+
+template <>
+inline void set<char*>::sort_data() {
+    for (size_t i = 1; i < Base::size; ++i) {
+        char* key = Base::pdata[i];
+        int j = static_cast<int>(i) - 1;
+        while (j >= 0 && std::strcmp(key, Base::pdata[j]) < 0) {
+            Base::pdata[j + 1] = Base::pdata[j];
+            --j;
+        }
+        Base::pdata[j + 1] = key;
+    }
+}
+
+template <>
+inline int set<char*>::qfind(char* const& el) const {
+    if (Base::size == 0) return -1;
+    int lo = 0, hi = static_cast<int>(Base::size) - 1;
+    while (lo <= hi) {
+        int mid = lo + (hi - lo) / 2;
+        int cmp = std::strcmp(Base::pdata[mid], el);
+        if (cmp == 0)      return mid;
+        else if (cmp < 0)  lo = mid + 1;
+        else               hi = mid - 1;
+    }
+    return -1;
+}
+
+template <>
+inline bool set<char*>::is_element(char* const& el) const {
+    return qfind(el) != -1;
+}
+
+template <>
+inline void set<char*>::push(char* const& el) {
+    if (!is_element(el)) {
+        Base::push(el);
+        sort_data();
+    }
+}
+
+template <>
+inline void set<char*>::pop(char* const& el) {
+    int idx = qfind(el);
+    if (idx == -1) return;
+    Base::pop(static_cast<size_t>(idx));
+}
+
+template <>
+inline bool set<char*>::operator==(const set<char*>& other) const {
+    if (Base::size != other.size) return false;
+    for (size_t i = 0; i < Base::size; ++i)
+        if (std::strcmp(Base::pdata[i], other.pdata[i]) != 0)
+            return false;
+    return true;
+}
+
 #endif
